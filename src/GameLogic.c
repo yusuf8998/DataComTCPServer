@@ -5,6 +5,7 @@ cell_t board[9];
 const cell_t EMPTY_CELL = 999;
 const cell_t X_CELL = 0;
 const cell_t O_CELL = 1;
+const cell_t BOARD_FULL = 9999;
 cell_t currentPlayer = X_CELL;
 
 const cell_t FULL_SET_X = X_CELL * 3;
@@ -64,7 +65,14 @@ cell_t checkBoard()
     }
     if ((result = checkBoardDiagonal()) != EMPTY_CELL)
         return result;
-    return checkBoardReverseDiagonal();
+    if ((result = checkBoardReverseDiagonal()) != EMPTY_CELL)
+        return result;
+    result = 0;
+    for (int i = 0; i < 9; i++)
+        result += board[i];
+    if (result < EMPTY_CELL)
+        return BOARD_FULL;
+    return EMPTY_CELL;
 }
 
 int getLineerBoardPosition(int x, int y)
@@ -80,6 +88,16 @@ int makeMove(int x, int y)
         return -1;
     board[i] = currentPlayer;
     currentPlayer = (currentPlayer+1)%2;
+    return 0;
+}
+
+void cellToString(char str[5], int x, int y)
+{
+    cell_t cell = board[getLineerBoardPosition(x, y)];
+    if (cell == EMPTY_CELL)
+        sprintf(str, "(%d,%d)", x, y);
+    else
+        sprintf(str, "%s", cell == O_CELL ? "  O  " : "  X  ");   
 }
 
 void printBoard()

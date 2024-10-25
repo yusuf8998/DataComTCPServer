@@ -21,8 +21,9 @@ int game()
 int main(int argc, char const *argv[])
 {
     // return game();
+    clearBoard();
     clearClientList();
-    clearBuffer();
+    clearPacket(buffer);
 
     createServerSocket();
     createServerAddress();
@@ -32,18 +33,38 @@ int main(int argc, char const *argv[])
     bindServerSocketAddress();
     listenForServerConnections();
 
-    int sd;
+    int sd, i;
     while (1)
     {
-        setServerReadFDs();
+        setServerFDs(&readfds);
+        setServerFDs(&writefds);
         selectFDs();
 
         if (FD_ISSET(server_socket, &readfds))
             handleNewServerConnection();
 
-        for (int i = 0; i < MAX_CLIENTS; i++)
+        setServerFDs(&readfds);
+        setServerFDs(&writefds);
+        selectFDs();
+
+        for (i = 0; i < MAX_CLIENTS; i++)
+        {
             if (FD_ISSET((sd = client_sockets[i]), &readfds))
-                handleClient(sd);
+                readFromClient(i);
+        }
+
+        for (i = 0; i < MAX_CLIENTS; i++)
+        {
+            if (FD_ISSET((sd = client_sockets[i]), &writefds))
+                writeToClient(i);
+        }
+
+        if (game_start_event)
+        {
+            printf("%s", start_msg);
+            game_start_event = 0;
+        }
+        game_tick_event = 0;
     }
     return 0;
 }
