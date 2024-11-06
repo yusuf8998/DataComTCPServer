@@ -19,6 +19,7 @@ void clearBoard()
 {
     for (int i = 0; i < 9; i++)
         board[i] = EMPTY_CELL;
+    currentPlayer = X_CELL;
 }
 
 cell_t checkCellSum(cell_t sum)

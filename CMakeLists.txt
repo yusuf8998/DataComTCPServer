@@ -9,3 +9,10 @@ add_executable(DataComTCPServer
     "src/TCPServer.c"
     "src/App.c"
 )
+
+target_compile_definitions(DataComTCPServer PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
+
+if (WIN32)
+    target_link_libraries(DataComTCPServer ws2_32)
+endif()

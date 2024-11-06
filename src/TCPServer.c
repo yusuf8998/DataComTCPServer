@@ -12,6 +12,8 @@ socklen_t len = sizeof(server_addr);
 int game_start_event = 0, game_tick_event = 0;
 int turn_index = -1;
 
+const int X_index = 0, O_index = 1;
+
 // pre-allocation of frequently used variables
 int valread = 0, sd = 0, cli = 0, new_socket = 0, i = 0, n = 0, select_status = 0;
 
@@ -84,8 +86,8 @@ void clearClientList()
 
 void createServerSocket()
 {
-    if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == 0)
-        exit(-1);
+    if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) <= 0)
+        abort();
     printf("Socket created!\n");
 }
 void createServerAddress()
@@ -98,18 +100,18 @@ void setSocketAsReuseAddr(int master_socket)
 {
     int opt = 1;
     if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0)
-        exit(-1);
+        abort();
 }
 void bindServerSocketAddress()
 {
     if (bind(server_socket, (struct sockaddr *)&server_addr, len) < 0)
-        exit(-1);
+        abort();
     printf("Socket bound!\n");
 }
 void listenForServerConnections()
 {
     if (listen(server_socket, MAX_CONNECTION_REQUESTS) < 0)
-        exit(-1);
+        abort();
     printf("Listening...\n");
 }
 void setServerFDs(fd_set *set)
@@ -130,7 +132,7 @@ void selectFDs()
 {
     select_status = select(max_sd + 1, &readfds, &writefds, NULL, NULL);
     if (select_status < 0 && (errno != EINTR))
-        exit(-1);
+        abort();
 }
 int addToClientList(int fd)
 {
@@ -276,7 +278,7 @@ void readFromClient(int index)
             loadPacket(buffer, tie_msg);
             sendPacketToAll(buffer);
 
-            printBoard("It's a tie!\n");
+            printf("It's a tie!\n");
             turn_index = -1;
             return;
 
@@ -321,15 +323,15 @@ void writeToClient(int index)
         appendPacket(buffer, start_msg);
         // sendPacket(cli, buffer);
         // clearPacket(buffer);
-        if (index == 0)
+        if (index == X_index)
             appendPacket(buffer, assign_x_msg);
-        else if (index == 1)
+        else if (index == O_index)
             appendPacket(buffer, assign_o_msg);
         else
-            exit(-1);
+            abort();
         // sendPacket(cli, buffer);
         // clearPacket(buffer);
-        turn_index = 0;
+        turn_index = X_index;
     }
     if (turn_index == index)
     {

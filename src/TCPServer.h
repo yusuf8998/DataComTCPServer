@@ -6,10 +6,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef _WIN32
+#include <winsock2.h>
+#include <Ws2tcpip.h>
+#include <WinSock2.h>
+#else
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#endif
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -17,8 +23,8 @@
 #include "GameLogic.h"
 
 #define IP "127.0.0.1"
-#define BUFFER_MAX 2048
 #define PORT 6378
+#define BUFFER_MAX 1024
 #define MAX_CLIENTS 2
 #define MAX_CONNECTION_REQUESTS 10
 
@@ -40,6 +46,8 @@ extern packet_t buffer;
 
 extern int game_start_event, game_tick_event;
 extern int turn_index;
+
+extern const int X_index, O_index;
 
 extern const char *terminate_msg;
 extern const char *assign_x_msg;

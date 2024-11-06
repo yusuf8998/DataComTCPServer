@@ -20,6 +20,11 @@ int game()
 
 int main(int argc, char const *argv[])
 {
+#ifdef _WIN32
+    WSADATA wsa;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+        return -1;
+#endif
     // return game();
     clearBoard();
     clearClientList();
@@ -66,5 +71,8 @@ int main(int argc, char const *argv[])
         }
         game_tick_event = 0;
     }
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return 0;
 }
